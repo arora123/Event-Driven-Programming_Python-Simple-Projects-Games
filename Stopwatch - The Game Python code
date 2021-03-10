@@ -1,0 +1,87 @@
+# "Stopwatch: The Game" 
+# Mini project for Coursera
+# Coder: Dr Nisha Arora
+
+# Import module(s)
+import simplegui
+
+# define global variables
+
+count = 0
+last_count = 0
+stop_count = 0
+correct_stop_count = 0
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+
+def format(count):     
+    if count < 10:
+        A = 0
+        B = 0
+        C = 0
+        D = count 
+    elif count < 100:
+        A = 0
+        B = 0
+        C = count // 10
+        D = count % 10
+    elif count < 600:
+        A = 0
+        B = count // 100
+        C = (count - B*100)// 10
+        D = (count - C*10) % 10
+    else:
+        A = count // 600 # for 5999, A = 9
+        B = (count % 600) // 100 # for 5999, B = 599 // 100 = 5
+        C = ((count % 600) - B*100)// 10 # for 5999, C = 99 //10 = 9
+        D = ((count % 600) - B*100) % 10 # for 5999, D = 99 % 10 = 9        
+     
+    return str(A) + ":" + str(B) + str(C) + "." + str(D)
+    
+# define event handlers for buttons; "Start", "Stop", "Reset"
+def button_handler_start():
+    return timer.start()
+
+def button_handler_stop():
+    global stop_count, correct_stop_count, last_count
+    if last_count != count: 
+        stop_count +=1
+    #  count % 10 represents last digit of the variable 'count'
+    if (count % 10) == 0:
+        correct_stop_count += 1
+    return timer.stop()
+
+def button_handler_reset(): 
+    global count, stop_count, correct_stop_count
+    count = stop_count = correct_stop_count = 0
+    print format(count)
+
+# define event handler for timer with 0.1 sec interval
+def timer_handler():
+    global count
+    count = count + 1 # counts increases with every tick from the timer
+    return count
+    
+# define draw handler
+def draw_handler(canvas):
+    x = correct_stop_count
+    y = stop_count   
+         
+    canvas.draw_text(format(count), (80, 102), 20, 'Black')
+    canvas.draw_text(str(x) + "/" + str(y), (140, 30), 25, 'Red') 
+    
+    
+# create frame and timer
+frame = simplegui.create_frame("Stop watch", 200, 200, 100)
+frame.set_canvas_background("Silver")
+timer = simplegui.create_timer(100, timer_handler) # timer will run every 100 mili sec, i.e., 1/10 th of a sec
+
+# register event handlers
+frame.add_button('Start', button_handler_start, 100) # when 'Start' button will be clicked, it will call  button_handler_start
+frame.add_button('Stop', button_handler_stop, 100)
+frame.add_button('Reset', button_handler_reset, 100)
+frame.set_draw_handler(draw_handler) # It will be called automatically, 60 times in a second.
+
+# start frame 
+frame.start()
